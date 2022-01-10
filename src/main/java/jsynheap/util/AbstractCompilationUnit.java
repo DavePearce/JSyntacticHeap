@@ -24,8 +24,8 @@ import java.util.function.Function;
 
 import jbuildgraph.util.ArrayUtils;
 import jbuildgraph.util.Trie;
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;;
 
 public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 
@@ -54,7 +54,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	}
 
 	@Override
-	public SyntacticHeap getParent() {
+	public Syntactic.Heap getParent() {
 		return null;
 	}
 

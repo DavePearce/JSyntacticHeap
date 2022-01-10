@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import jbuildgraph.util.Pair;
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;
 
 
 /**
@@ -39,9 +39,9 @@ import jsynheap.lang.SyntacticItem;
  */
 public abstract class SyntacticHeapWriter {
 	protected final BinaryOutputStream out;
-	protected final SyntacticHeap.Schema schema;
+	protected final Syntactic.Heap.Schema schema;
 
-	public SyntacticHeapWriter(OutputStream output, SyntacticHeap.Schema schema) {
+	public SyntacticHeapWriter(OutputStream output, Syntactic.Heap.Schema schema) {
 		this.out = new BinaryOutputStream(output);
 		this.schema = schema;
 	}
@@ -50,7 +50,7 @@ public abstract class SyntacticHeapWriter {
 		out.close();
 	}
 
-	public void write(SyntacticHeap module) throws IOException {
+	public void write(Syntactic.Heap module) throws IOException {
 		// first, write magic number
 		writeHeader();
 		// second, write syntactic items
@@ -164,7 +164,7 @@ public abstract class SyntacticHeapWriter {
 		metrics.put(opcode, old.record(size));
 	}
 
-	public static void printMetrics(SyntacticHeap.Schema schema) {
+	public static void printMetrics(Syntactic.Heap.Schema schema) {
 		List<Pair<Integer,Metric>> items = new ArrayList();
 		for(int i=0;i!=255;++i) {
 			Metric c = metrics.get(i);

@@ -15,8 +15,8 @@ package jsynheap.io;
 
 import java.io.PrintWriter;
 
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;
 
 public class SyntacticHeapPrinter {
 	private final PrintWriter out;
@@ -31,7 +31,7 @@ public class SyntacticHeapPrinter {
 		this.showGarbage = showGarbage;
 	}
 
-	public void print(SyntacticHeap heap) {
+	public void print(Syntactic.Heap heap) {
 		boolean[] reachable = new boolean[heap.size()];
 		search(heap.getRootItem().getIndex(),heap, reachable);
 		//
@@ -71,7 +71,7 @@ public class SyntacticHeapPrinter {
 		out.flush();
 	}
 
-	private void search(int index, SyntacticHeap heap, boolean[] visited) {
+	private void search(int index, Syntactic.Heap heap, boolean[] visited) {
 		visited[index] = true;
 		//
 		SyntacticItem item = heap.getSyntacticItem(index);

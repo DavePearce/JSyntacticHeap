@@ -18,12 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import jbuildgraph.util.ArrayUtils;
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;
 
 public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>, SyntacticItem, Cloneable {
 	// Constants;
-	private SyntacticHeap parent;
+	private Syntactic.Heap parent;
 	private int index; // index in the parent
 	protected int opcode;
 	protected SyntacticItem[] operands;
@@ -49,12 +49,12 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	}
 
 	@Override
-	public SyntacticHeap getHeap() {
+	public Syntactic.Heap getHeap() {
 		return parent;
 	}
 
 	@Override
-	public void allocate(SyntacticHeap heap, int index) {
+	public void allocate(Syntactic.Heap heap, int index) {
 		if(parent != null && parent != heap) {
 			throw new IllegalArgumentException(
 					"item already allocated to different heap (" + getClass().getName() + ";" + parent + ", " + heap

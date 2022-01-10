@@ -16,9 +16,9 @@ package jsynheap.io;
 import java.io.*;
 
 import jbuildgraph.util.Pair;
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
-import jsynheap.lang.SyntacticHeap.Schema;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;
+import jsynheap.lang.Syntactic.Heap.Schema;
 
 
 /**
@@ -42,7 +42,7 @@ public abstract class SyntacticHeapReader {
 		in.close();
 	}
 
-	public abstract SyntacticHeap read() throws IOException;
+	public abstract Syntactic.Heap read() throws IOException;
 
 	/**
 	 * Read all the items in this heap, returning the identified root item and an

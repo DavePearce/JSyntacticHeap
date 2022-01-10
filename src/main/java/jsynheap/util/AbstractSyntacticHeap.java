@@ -21,10 +21,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import jsynheap.lang.SyntacticHeap;
-import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.Syntactic;
+import jsynheap.lang.Syntactic.SyntacticItem;
 
-public abstract class AbstractSyntacticHeap implements SyntacticHeap {
+public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	/**
 	 * The list of syntactic items contained in this heap.
 	 */
@@ -39,7 +39,7 @@ public abstract class AbstractSyntacticHeap implements SyntacticHeap {
 
 	}
 
-	public AbstractSyntacticHeap(SyntacticHeap heap) {
+	public AbstractSyntacticHeap(Syntactic.Heap heap) {
 		// Copy over the root
 		this.root = heap.getRootItem().getIndex();
 		// Now, clone items from heap in here
@@ -482,7 +482,7 @@ public abstract class AbstractSyntacticHeap implements SyntacticHeap {
 		}
 	}
 
-	public static class Allocator implements SyntacticHeap.Allocator<AbstractSyntacticHeap> {
+	public static class Allocator implements Syntactic.Heap.Allocator<AbstractSyntacticHeap> {
 		protected final AbstractSyntacticHeap heap;
 		protected final Map<SyntacticItem, SyntacticItem> map;
 
@@ -493,7 +493,7 @@ public abstract class AbstractSyntacticHeap implements SyntacticHeap {
 
 		@Override
 		public SyntacticItem allocate(SyntacticItem item) {
-			SyntacticHeap parent = item.getHeap();
+			Syntactic.Heap parent = item.getHeap();
 			SyntacticItem allocated = map.get(item);
 			if (allocated != null) {
 				return allocated;
