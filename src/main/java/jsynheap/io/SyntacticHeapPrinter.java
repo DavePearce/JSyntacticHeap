@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package wycc.io;
+package jsynheap.io;
 
 import java.io.PrintWriter;
 
-import wycc.lang.SyntacticHeap;
-import wycc.lang.SyntacticItem;
+import jsynheap.lang.SyntacticHeap;
+import jsynheap.lang.SyntacticItem;
 
 public class SyntacticHeapPrinter {
 	private final PrintWriter out;

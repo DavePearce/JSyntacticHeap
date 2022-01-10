@@ -11,15 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package wycc.util;
+package jsynheap.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import wycc.lang.SyntacticHeap;
-import wycc.lang.SyntacticHeap.Schema;
-import wycc.lang.SyntacticItem;
+import jsynheap.lang.SyntacticHeap;
+import jsynheap.lang.SyntacticItem;
+import jsynheap.lang.SyntacticHeap.Schema;
 
 /**
  * Represents a schema which is divided up into named sections, where the
@@ -94,7 +94,7 @@ public class SectionedSchema implements SyntacticHeap.Schema {
 	}
 
 	@Override
-	public wycc.lang.SyntacticItem.Descriptor getDescriptor(int opcode) {
+	public jsynheap.lang.SyntacticItem.Descriptor getDescriptor(int opcode) {
 		Opcode d = opcodes[opcode];
 		return d == null ? null : d.schema;
 	}
@@ -198,7 +198,7 @@ public class SectionedSchema implements SyntacticHeap.Schema {
 		 * @param schema
 		 * @return
 		 */
-		public void add(String section, String name, wycc.lang.SyntacticItem.Descriptor schema) {
+		public void add(String section, String name, jsynheap.lang.SyntacticItem.Descriptor schema) {
 			delta.add(new Action.Add(section, name, schema));
 		}
 
@@ -211,7 +211,7 @@ public class SectionedSchema implements SyntacticHeap.Schema {
 		 * @param schema
 		 * @return
 		 */
-		public void replace(String section, String name, wycc.lang.SyntacticItem.Descriptor schema) {
+		public void replace(String section, String name, jsynheap.lang.SyntacticItem.Descriptor schema) {
 			delta.add(new Action.Replace(section, name, schema));
 		}
 

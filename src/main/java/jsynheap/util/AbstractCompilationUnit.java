@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package wycc.util;
+package jsynheap.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,14 +22,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Function;
 
-import jbfs.util.ArrayUtils;
-import jbfs.util.Trie;
-import wycc.lang.CompilationUnit;
-import wycc.lang.SyntacticHeap;
-import wycc.lang.SyntacticItem;
+import jbuildgraph.util.ArrayUtils;
+import jbuildgraph.util.Trie;
+import jsynheap.lang.SyntacticHeap;
+import jsynheap.lang.SyntacticItem;
 
-public abstract class AbstractCompilationUnit<T extends CompilationUnit> extends AbstractSyntacticHeap
-		implements CompilationUnit {
+public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 
 	// ITEMS: 0000000 (0) -- 00001111 (15)
 	public static final int ITEM_null = 0;
@@ -51,7 +49,7 @@ public abstract class AbstractCompilationUnit<T extends CompilationUnit> extends
 
 	}
 
-	public AbstractCompilationUnit(CompilationUnit other) {
+	public AbstractCompilationUnit(AbstractCompilationUnit other) {
 		super(other);
 	}
 
@@ -297,7 +295,7 @@ public abstract class AbstractCompilationUnit<T extends CompilationUnit> extends
 	 * @author David J. Pearce
 	 *
 	 */
-	public static class Identifier extends AbstractSyntacticItem implements CompilationUnit.Identifier {
+	public static class Identifier extends AbstractSyntacticItem {
 		public Identifier(String name) {
 			super(ITEM_ident, name.getBytes(StandardCharsets.UTF_8), new SyntacticItem[0]);
 		}
@@ -306,7 +304,6 @@ public abstract class AbstractCompilationUnit<T extends CompilationUnit> extends
 			super(ITEM_ident, bytes, new SyntacticItem[0]);
 		}
 
-		@Override
 		public String get() {
 			// FIXME: could cache this
 			return new String(data,StandardCharsets.UTF_8);
@@ -337,7 +334,7 @@ public abstract class AbstractCompilationUnit<T extends CompilationUnit> extends
 	 * @author David J. Pearce
 	 *
 	 */
-	public static class Name extends AbstractSyntacticItem implements CompilationUnit.Name {
+	public static class Name extends AbstractSyntacticItem {
 		public Name(Identifier... components) {
 			super(ITEM_name, components);
 		}

@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package wycc.util;
+package jsynheap.util;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import wycc.lang.SyntacticHeap;
-import wycc.lang.SyntacticItem;
+import jsynheap.lang.SyntacticHeap;
+import jsynheap.lang.SyntacticItem;
 
 public abstract class AbstractSyntacticHeap implements SyntacticHeap {
 	/**

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 /**
- * Provides instantiations of the build system interfaces which cover the common cases.
+ * Provides core interfaces for describing content, namespaces, builders and build rules.
  *
  * @author David J. Pearce
  */
-package wycc.util;
+package jsynheap.lang;

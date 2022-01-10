@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package wycc.io;
+package jsynheap.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jbfs.util.Pair;
-import wycc.lang.SyntacticHeap;
-import wycc.lang.SyntacticItem;
+import jbuildgraph.util.Pair;
+import jsynheap.lang.SyntacticHeap;
+import jsynheap.lang.SyntacticItem;
 
 
 /**

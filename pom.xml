@@ -46,6 +46,11 @@ A library for representing Abstract Syntax Trees
   <!-- ============================================== -->
   
   <dependencies>
+     <dependency>
+      <groupId>org.whiley</groupId>
+      <artifactId>jbuildgraph</artifactId>
+      <version>0.2.2</version>
+     </dependency>    
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>

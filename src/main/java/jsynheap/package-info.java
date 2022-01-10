@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 /**
- * Provides core interfaces for describing content, namespaces, builders and build rules.
+ * <b>The Whiley Build System</b>. This provides a generic and flexible build
+ * system which underpins the Whiley compiler. The need for such a build system
+ * stems from a requirement to integrate the Whiley compiler with different
+ * tools (e.g. Ant, Eclipse, etc).
  *
  * @author David J. Pearce
  */
-package wycc.lang;
+package jsynheap;
