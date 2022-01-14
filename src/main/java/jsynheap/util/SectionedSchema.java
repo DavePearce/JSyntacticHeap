@@ -17,9 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
-import jsynheap.lang.Syntactic.Heap.Schema;
+import jsynheap.lang.Syntactic.Item;
+import jsynheap.lang.Syntactic.Schema;
 
 /**
  * Represents a schema which is divided up into named sections, where the
@@ -29,7 +28,7 @@ import jsynheap.lang.Syntactic.Heap.Schema;
  * @author David J. Pearce
  *
  */
-public class SectionedSchema implements Syntactic.Heap.Schema {
+public class SectionedSchema implements Schema {
 	/**
 	 * The base schema with version 0.0 which contains nothing. From this, all
 	 * schemas derive.
@@ -94,7 +93,7 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 	}
 
 	@Override
-	public jsynheap.lang.Syntactic.SyntacticItem.Descriptor getDescriptor(int opcode) {
+	public jsynheap.lang.Syntactic.Item.Descriptor getDescriptor(int opcode) {
 		Opcode d = opcodes[opcode];
 		return d == null ? null : d.schema;
 	}
@@ -153,9 +152,9 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 
 	public static class Opcode {
 		private final String name;
-		private final SyntacticItem.Descriptor schema;
+		private final Item.Descriptor schema;
 
-		public Opcode(String name, SyntacticItem.Descriptor schema) {
+		public Opcode(String name, Item.Descriptor schema) {
 			this.name = name;
 			this.schema = schema;
 		}
@@ -198,7 +197,7 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 		 * @param schema
 		 * @return
 		 */
-		public void add(String section, String name, jsynheap.lang.Syntactic.SyntacticItem.Descriptor schema) {
+		public void add(String section, String name, jsynheap.lang.Syntactic.Item.Descriptor schema) {
 			delta.add(new Action.Add(section, name, schema));
 		}
 
@@ -211,7 +210,7 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 		 * @param schema
 		 * @return
 		 */
-		public void replace(String section, String name, jsynheap.lang.Syntactic.SyntacticItem.Descriptor schema) {
+		public void replace(String section, String name, jsynheap.lang.Syntactic.Item.Descriptor schema) {
 			delta.add(new Action.Replace(section, name, schema));
 		}
 
@@ -286,9 +285,9 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 		private static class Add extends Action {
 			private final String section;
 			private final String name;
-			private final SyntacticItem.Descriptor schema;
+			private final Item.Descriptor schema;
 
-			public Add(String section, String name, SyntacticItem.Descriptor schema) {
+			public Add(String section, String name, Item.Descriptor schema) {
 				this.section = section;
 				this.name = name;
 				this.schema = schema;
@@ -313,9 +312,9 @@ public class SectionedSchema implements Syntactic.Heap.Schema {
 		private static class Replace extends Action {
 			protected final String section;
 			protected final String name;
-			protected final SyntacticItem.Descriptor schema;
+			protected final Item.Descriptor schema;
 
-			public Replace(String section, String name, SyntacticItem.Descriptor schema) {
+			public Replace(String section, String name, Item.Descriptor schema) {
 				this.section = section;
 				this.name = name;
 				this.schema = schema;

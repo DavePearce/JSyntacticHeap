@@ -25,9 +25,9 @@ import java.util.function.Function;
 import jbuildgraph.util.ArrayUtils;
 import jbuildgraph.util.Trie;
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;;
+import jsynheap.lang.Syntactic.Item;;
 
-public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
+public abstract class AbstractCompilationUnit extends AbstractHeap {
 
 	// ITEMS: 0000000 (0) -- 00001111 (15)
 	public static final int ITEM_null = 0;
@@ -68,7 +68,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 *
 	 * @param <T>
 	 */
-	public static class Ref<T extends SyntacticItem> extends AbstractSyntacticItem {
+	public static class Ref<T extends Item> extends AbstractItem {
 		public Ref(T referent) {
 			super(ITEM_ref,referent);
 		}
@@ -94,14 +94,14 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		@Override
-		public SyntacticItem clone(SyntacticItem[] operands) {
+		public Item clone(Item[] operands) {
 			return new Ref(operands[0]);
 		}
 
-		public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ONE, Data.ZERO,
+		public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ONE, Data.ZERO,
 				"ITEM_ref") {
 			@Override
-			public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+			public Item construct(int opcode, Item[] operands, byte[] data) {
 				return new Ref(operands[0]);
 			}
 		};
@@ -116,8 +116,8 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 * @param <K>
 	 * @param <V>
 	 */
-	public static class Pair<K extends SyntacticItem, V extends SyntacticItem>
-			extends AbstractSyntacticItem {
+	public static class Pair<K extends Item, V extends Item>
+			extends AbstractItem {
 		public Pair(K lhs, V rhs) {
 			super(ITEM_pair, lhs, rhs);
 		}
@@ -131,7 +131,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		@Override
-		public Pair<K, V> clone(SyntacticItem[] operands) {
+		public Pair<K, V> clone(Item[] operands) {
 			return new Pair<>((K) operands[0], (V) operands[1]);
 		}
 
@@ -140,10 +140,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			return "(" + getFirst() + ", " + getSecond() + ")";
 		}
 
-		public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.TWO, Data.ZERO,
+		public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.TWO, Data.ZERO,
 				"ITEM_pair") {
 			@Override
-			public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+			public Item construct(int opcode, Item[] operands, byte[] data) {
 				return new Pair<>(operands[0], operands[1]);
 			}
 		};
@@ -156,14 +156,14 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 *
 	 * @param <T>
 	 */
-	public static class Tuple<T extends SyntacticItem> extends AbstractSyntacticItem implements Iterable<T> {
+	public static class Tuple<T extends Item> extends AbstractItem implements Iterable<T> {
 
 		public Tuple(T... stmts) {
 			super(ITEM_tuple, stmts);
 		}
 
 		public Tuple(Collection<T> stmts) {
-			super(ITEM_tuple, ArrayUtils.toArray(SyntacticItem.class,stmts));
+			super(ITEM_tuple, ArrayUtils.toArray(Item.class,stmts));
 		}
 
 		@Override
@@ -172,16 +172,16 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		public Tuple<T> get(int start, int end) {
-			SyntacticItem[] items = new SyntacticItem[end - start];
+			Item[] items = new Item[end - start];
 			for (int i = start; i < end; ++i) {
 				items[i-start] = super.get(i);
 			}
 			return new Tuple(items);
 		}
 
-		public <S extends SyntacticItem> Tuple<S> map(Function<T, S> fn) {
+		public <S extends Item> Tuple<S> map(Function<T, S> fn) {
 			int size = size();
-			SyntacticItem[] elements = new SyntacticItem[size];
+			Item[] elements = new Item[size];
 			for (int i = 0; i != size; ++i) {
 				elements[i] = fn.apply(get(i));
 			}
@@ -195,7 +195,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		 * @return
 		 */
 		public Tuple<T> append(T item) {
-			SyntacticItem[] nitems = Arrays.copyOf(operands, operands.length+1);
+			Item[] nitems = Arrays.copyOf(operands, operands.length+1);
 			nitems[operands.length] = item;
 			return new Tuple<>((T[]) nitems);
 		}
@@ -207,7 +207,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		 * @return
 		 */
 		public Tuple<T> appendAll(Tuple<T> items) {
-			SyntacticItem[] nitems = Arrays.copyOf(operands, operands.length + items.size());
+			Item[] nitems = Arrays.copyOf(operands, operands.length + items.size());
 			System.arraycopy(items.operands, 0, nitems, operands.length, items.size());
 			return new Tuple<>((T[]) nitems);
 		}
@@ -218,8 +218,8 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		 * @param item
 		 * @return
 		 */
-		public <S extends SyntacticItem> Tuple<T> removeAll(Collection<S> items) {
-			SyntacticItem[] noperands = Arrays.copyOf(operands, operands.length);
+		public <S extends Item> Tuple<T> removeAll(Collection<S> items) {
+			Item[] noperands = Arrays.copyOf(operands, operands.length);
 			for(S item : items) {
 				for(int i=0;i!=operands.length;++i) {
 					if(operands[i] == item) {
@@ -234,8 +234,8 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		@Override
-		public Tuple<T> clone(SyntacticItem[] operands) {
-			return new Tuple(ArrayUtils.toArray(SyntacticItem.class, operands));
+		public Tuple<T> clone(Item[] operands) {
+			return new Tuple(ArrayUtils.toArray(Item.class, operands));
 		}
 
 		@Override
@@ -249,7 +249,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				if (i != 0) {
 					r += ",";
 				}
-				SyntacticItem child = get(i);
+				Item child = get(i);
 				if (child == null) {
 					r += "?";
 				} else {
@@ -278,10 +278,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			};
 		}
 
-		public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.MANY, Data.ZERO,
+		public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.MANY, Data.ZERO,
 				"ITEM_tuple") {
 			@Override
-			public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+			public Item construct(int opcode, Item[] operands, byte[] data) {
 				return new Tuple<>(operands);
 			}
 		};
@@ -295,13 +295,13 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 * @author David J. Pearce
 	 *
 	 */
-	public static class Identifier extends AbstractSyntacticItem {
+	public static class Identifier extends AbstractItem {
 		public Identifier(String name) {
-			super(ITEM_ident, name.getBytes(StandardCharsets.UTF_8), new SyntacticItem[0]);
+			super(ITEM_ident, name.getBytes(StandardCharsets.UTF_8), new Item[0]);
 		}
 
 		public Identifier(byte[] bytes) {
-			super(ITEM_ident, bytes, new SyntacticItem[0]);
+			super(ITEM_ident, bytes, new Item[0]);
 		}
 
 		public String get() {
@@ -310,7 +310,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		@Override
-		public Identifier clone(SyntacticItem[] operands) {
+		public Identifier clone(Item[] operands) {
 			return new Identifier(get());
 		}
 
@@ -319,9 +319,9 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			return get();
 		}
 
-		public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO,Data.MANY, "ITEM_ident") {
+		public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO,Data.MANY, "ITEM_ident") {
 			@Override
-			public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+			public Item construct(int opcode, Item[] operands, byte[] data) {
 				return new Identifier(data);
 			}
 		};
@@ -334,7 +334,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 * @author David J. Pearce
 	 *
 	 */
-	public static class Name extends AbstractSyntacticItem {
+	public static class Name extends AbstractItem {
 		public Name(Identifier... components) {
 			super(ITEM_name, components);
 		}
@@ -366,7 +366,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		}
 
 		@Override
-		public Name clone(SyntacticItem[] operands) {
+		public Name clone(Item[] operands) {
 			return new Name(ArrayUtils.toArray(Identifier.class, operands));
 		}
 
@@ -387,10 +387,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			return ids;
 		}
 
-		public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.MANY, Data.ZERO,
+		public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.MANY, Data.ZERO,
 				"ITEM_name") {
 			@Override
-			public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+			public Item construct(int opcode, Item[] operands, byte[] data) {
 				return new Name(ArrayUtils.toArray(Identifier.class, operands));
 			}
 		};
@@ -404,13 +404,13 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 	 * @author David J. Pearce
 	 *
 	 */
-	public abstract static class Value extends AbstractSyntacticItem {
+	public abstract static class Value extends AbstractItem {
 
 		public Value(int opcode, byte... data) {
-			super(opcode, data, new SyntacticItem[0]);
+			super(opcode, data, new Item[0]);
 		}
 
-		public Value(int opcode, SyntacticItem[] items) {
+		public Value(int opcode, Item[] items) {
 			super(opcode, items);
 		}
 
@@ -429,7 +429,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Null clone(SyntacticItem[] operands) {
+			public Null clone(Item[] operands) {
 				return new Null();
 			}
 
@@ -443,10 +443,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return "null";
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO, Data.ZERO,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO, Data.ZERO,
 					"ITEM_null") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Null();
 				}
 			};
@@ -467,7 +467,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Bool clone(SyntacticItem[] operands) {
+			public Bool clone(Item[] operands) {
 				return new Bool(get());
 			}
 
@@ -476,10 +476,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return Boolean.toString(get());
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO, Data.ONE,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO, Data.ONE,
 					"ITEM_bool") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Bool(data[0] == 1);
 				}
 			};
@@ -500,14 +500,14 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Byte clone(SyntacticItem[] operands) {
+			public Byte clone(Item[] operands) {
 				return new Byte(get());
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO, Data.ONE,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO, Data.ONE,
 					"ITEM_byte") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Byte(data[0]);
 				}
 			};
@@ -538,7 +538,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Int clone(SyntacticItem[] operands) {
+			public Int clone(Item[] operands) {
 				return new Int(get());
 			}
 
@@ -547,9 +547,9 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return get().toString();
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO,Data.MANY, "ITEM_int") {
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO,Data.MANY, "ITEM_int") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Int(data);
 				}
 			};
@@ -579,7 +579,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Decimal clone(SyntacticItem[] operands) {
+			public Decimal clone(Item[] operands) {
 				return new Decimal(get());
 			}
 
@@ -606,10 +606,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return new BigDecimal(m,scale);
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO, Data.MANY,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO, Data.MANY,
 					"ITEM_decimal") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Decimal(data);
 				}
 			};
@@ -635,7 +635,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public UTF8 clone(SyntacticItem[] operands) {
+			public UTF8 clone(Item[] operands) {
 				return new UTF8(get());
 			}
 
@@ -644,9 +644,9 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return new String(get());
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.ZERO,Data.MANY, "ITEM_utf8") {
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.ZERO,Data.MANY, "ITEM_utf8") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.UTF8(data);
 				}
 			};
@@ -659,7 +659,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			public Array(Collection<? extends Value> stmts) {
-				super(ITEM_array, ArrayUtils.toArray(SyntacticItem.class,stmts));
+				super(ITEM_array, ArrayUtils.toArray(Item.class,stmts));
 			}
 
 			@Override
@@ -673,7 +673,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public Array clone(SyntacticItem[] operands) {
+			public Array clone(Item[] operands) {
 				return new Array(ArrayUtils.toArray(Value.class, operands));
 			}
 
@@ -688,7 +688,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 					if (i != 0) {
 						r += ",";
 					}
-					SyntacticItem child = get(i);
+					Item child = get(i);
 					if (child == null) {
 						r += "?";
 					} else {
@@ -698,10 +698,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return r;
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.MANY, Data.ZERO,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.MANY, Data.ZERO,
 					"ITEM_array") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Array(ArrayUtils.toArray(Value.class, operands));
 				}
 			};
@@ -713,7 +713,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			}
 
 			@Override
-			public SyntacticItem clone(SyntacticItem[] operands) {
+			public Item clone(Item[] operands) {
 				return new Dictionary(ArrayUtils.toArray(Pair.class, operands));
 			}
 
@@ -745,10 +745,10 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 				return "{" + r + "}";
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.MANY, Data.ZERO,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.MANY, Data.ZERO,
 					"ITEM_dictionary") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Value.Dictionary(ArrayUtils.toArray(Pair.class, operands));
 				}
 			};
@@ -775,13 +775,13 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 		 * @author David J. Pearce
 		 *
 		 */
-		public class Span extends AbstractSyntacticItem implements Attribute {
+		public class Span extends AbstractItem implements Attribute, Syntactic.Span {
 
-			public Span(SyntacticItem item, int start, int end) {
+			public Span(Item item, int start, int end) {
 				this(item, new Value.Int(start), new Value.Int(end));
 			}
 
-			public Span(SyntacticItem target, Value.Int start, Value.Int end) {
+			public Span(Item target, Value.Int start, Value.Int end) {
 				super(ATTR_span, target, start, end);
 			}
 
@@ -790,7 +790,7 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			 *
 			 * @return
 			 */
-			public SyntacticItem getItem() {
+			public Item getItem() {
 				return get(0);
 			}
 
@@ -800,8 +800,9 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			 *
 			 * @return
 			 */
-			public Value.Int getStart() {
-				return (Value.Int) get(1);
+			@Override
+			public int getStart() {
+				return ((Value.Int) get(1)).get().intValueExact();
 			}
 
 			/**
@@ -810,19 +811,20 @@ public abstract class AbstractCompilationUnit extends AbstractSyntacticHeap {
 			 *
 			 * @return
 			 */
-			public Value.Int getEnd() {
-				return (Value.Int) get(2);
+			@Override
+			public int getEnd() {
+				return ((Value.Int) get(2)).get().intValueExact();
 			}
 
 			@Override
-			public Span clone(SyntacticItem[] operands) {
+			public Span clone(Item[] operands) {
 				return new Span(operands[0], (Value.Int) operands[1], (Value.Int) operands[2]);
 			}
 
-			public static final SyntacticItem.Descriptor DESCRIPTOR_0 = new SyntacticItem.Descriptor(Operands.THREE, Data.ZERO,
+			public static final Item.Descriptor DESCRIPTOR_0 = new Item.Descriptor(Operands.THREE, Data.ZERO,
 					"ATTR_span") {
 				@Override
-				public SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data) {
+				public Item construct(int opcode, Item[] operands, byte[] data) {
 					return new Attribute.Span(operands[0], (Value.Int) operands[1], (Value.Int) operands[2]);
 				}
 			};

@@ -19,30 +19,30 @@ import java.util.List;
 
 import jbuildgraph.util.ArrayUtils;
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
+import jsynheap.lang.Syntactic.Item;
 
-public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>, SyntacticItem, Cloneable {
+public abstract class AbstractItem implements Comparable<Item>, Item, Cloneable {
 	// Constants;
 	private Syntactic.Heap parent;
 	private int index; // index in the parent
 	protected int opcode;
-	protected SyntacticItem[] operands;
+	protected Item[] operands;
 	protected byte[] data;
 
-	public AbstractSyntacticItem(int opcode) {
+	public AbstractItem(int opcode) {
 		super();
 		this.opcode = opcode;
 		this.operands = null;
 		this.data = null;
 	}
 
-	public AbstractSyntacticItem(int opcode, SyntacticItem... operands) {
+	public AbstractItem(int opcode, Item... operands) {
 		this.opcode = opcode;
 		this.operands = operands;
 		this.data = null;
 	}
 
-	protected AbstractSyntacticItem(int opcode, byte[] data, SyntacticItem... operands) {
+	protected AbstractItem(int opcode, byte[] data, Item... operands) {
 		this.opcode = opcode;
 		this.operands = operands;
 		this.data = data;
@@ -72,7 +72,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	 * @return
 	 */
 	@Override
-	public <T extends SyntacticItem> T getParent(Class<T> kind) {
+	public <T extends Item> T getParent(Class<T> kind) {
 		return parent.getParent(this, kind);
 	}
 
@@ -83,7 +83,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	 * @return
 	 */
 	@Override
-	public <T extends SyntacticItem> List<T> getParents(Class<T> kind) {
+	public <T extends Item> List<T> getParents(Class<T> kind) {
 		return parent.getParents(this, kind);
 	}
 	/**
@@ -94,7 +94,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	 * @return
 	 */
 	@Override
-	public <T extends SyntacticItem> T getAncestor(Class<T> kind) {
+	public <T extends Item> T getAncestor(Class<T> kind) {
 		return parent.getAncestor(this, kind);
 	}
 
@@ -119,12 +119,12 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	}
 
 	@Override
-	public SyntacticItem get(int i) {
+	public Item get(int i) {
 		return operands[i];
 	}
 
 	@Override
-	public void setOperand(int ith, SyntacticItem child) {
+	public void setOperand(int ith, Item child) {
 		operands[ith] = child;
 	}
 
@@ -142,7 +142,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	}
 
 	@Override
-	public SyntacticItem[] getAll() {
+	public Item[] getAll() {
 		return operands;
 	}
 
@@ -151,9 +151,9 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 		return data;
 	}
 
-	public <S extends SyntacticItem> S match(Class<S> kind) {
+	public <S extends Item> S match(Class<S> kind) {
 		for (int i = 0; i != size(); ++i) {
-			SyntacticItem operand = operands[i];
+			Item operand = operands[i];
 			if (kind.isInstance(operand)) {
 				return (S) operand;
 			}
@@ -172,8 +172,8 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof AbstractSyntacticItem) {
-			AbstractSyntacticItem bo = (AbstractSyntacticItem) o;
+		if (o instanceof AbstractItem) {
+			AbstractItem bo = (AbstractItem) o;
 			return getOpcode() == bo.getOpcode() && Arrays.equals(operands, bo.operands)
 					&& Arrays.equals(data, bo.data);
 		}
@@ -189,7 +189,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 				if (i != 0) {
 					r += ", ";
 				}
-				SyntacticItem item = operands[i];
+				Item item = operands[i];
 				if(item != null && item.getHeap() != null) {
 					r += item.getIndex();
 				} else {
@@ -205,7 +205,7 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 	}
 
 	@Override
-	public int compareTo(SyntacticItem other) {
+	public int compareTo(Item other) {
 		int diff = opcode - other.getOpcode();
 		if (diff != 0) {
 			return diff;
@@ -217,8 +217,8 @@ public abstract class AbstractSyntacticItem implements Comparable<SyntacticItem>
 			return diff;
 		}
 		for (int i = 0; i != size(); ++i) {
-			SyntacticItem my_ith = get(i);
-			SyntacticItem other_ith = other.get(i);
+			Item my_ith = get(i);
+			Item other_ith = other.get(i);
 			if (my_ith == null && other_ith == null) {
 				// skip
 			} else if(my_ith == null) {

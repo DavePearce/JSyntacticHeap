@@ -17,8 +17,8 @@ import java.io.*;
 
 import jbuildgraph.util.Pair;
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
-import jsynheap.lang.Syntactic.Heap.Schema;
+import jsynheap.lang.Syntactic.Item;
+import jsynheap.lang.Syntactic.Schema;
 
 
 /**
@@ -31,10 +31,10 @@ import jsynheap.lang.Syntactic.Heap.Schema;
  * @author David J. Pearce
  *
  */
-public abstract class SyntacticHeapReader {
+public abstract class HeapReader {
 	protected final BinaryInputStream in;
 
-	public SyntacticHeapReader(InputStream output) {
+	public HeapReader(InputStream output) {
 		this.in = new BinaryInputStream(output);
 	}
 
@@ -51,7 +51,7 @@ public abstract class SyntacticHeapReader {
 	 * @return
 	 * @throws IOException
 	 */
-	protected Pair<Integer, SyntacticItem[]> readItems() throws IOException {
+	protected Pair<Integer, Item[]> readItems() throws IOException {
 		// first, write magic number
 		Schema schema = checkHeader();
 		// second, determine number of items
@@ -92,7 +92,7 @@ public abstract class SyntacticHeapReader {
 
 	protected int[] readOperands(Schema schema, int opcode) throws IOException {
 		// Determine operand layout
-		SyntacticItem.Operands layout = schema.getDescriptor(opcode).getOperandLayout();
+		Item.Operands layout = schema.getDescriptor(opcode).getOperandLayout();
 		int[] operands;
 		int size;
 		// Determine number of operands according to layout
@@ -115,7 +115,7 @@ public abstract class SyntacticHeapReader {
 
 	protected byte[] readData(Schema schema, int opcode) throws IOException {
 		// Determine operand layout
-		SyntacticItem.Data layout = schema.getDescriptor(opcode).getDataLayout();
+		Item.Data layout = schema.getDescriptor(opcode).getDataLayout();
 		byte[] bytes;
 		int size;
 		// Determine number of bytes according to layout
@@ -136,8 +136,8 @@ public abstract class SyntacticHeapReader {
 		return bytes;
 	}
 
-	protected SyntacticItem[] constructItems(Schema schema, Bytecode[] bytecodes) {
-		SyntacticItem[] items = new SyntacticItem[bytecodes.length];
+	protected Item[] constructItems(Schema schema, Bytecode[] bytecodes) {
+		Item[] items = new Item[bytecodes.length];
 		//
 		for(int i=0;i!=items.length;++i) {
 			constructItem(i,schema,bytecodes,items);
@@ -146,7 +146,7 @@ public abstract class SyntacticHeapReader {
 		return items;
 	}
 
-	protected void constructItem(int index, Schema schema, Bytecode[] bytecodes, SyntacticItem[] items) {
+	protected void constructItem(int index, Schema schema, Bytecode[] bytecodes, Item[] items) {
 		// FIXME: this fails in the presence of truly recursive items.
 		if (items[index] == null) {
 			// This item not yet constructed, therefore construct it!
@@ -156,8 +156,8 @@ public abstract class SyntacticHeapReader {
 			int[] operands = bytecode.operands;
 			byte[] data = bytecode.data;
 			// Construct empty item
-			SyntacticItem item = schema.getDescriptor(bytecode.opcode).construct(opcode,
-					new SyntacticItem[operands.length], data);
+			Item item = schema.getDescriptor(bytecode.opcode).construct(opcode,
+					new Item[operands.length], data);
 			// Store item so can be accessed recursively
 			items[index] = item;
 			// Recursively construct operands

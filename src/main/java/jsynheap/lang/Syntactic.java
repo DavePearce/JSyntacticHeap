@@ -30,7 +30,46 @@ public class Syntactic {
 	 * @author David J. Pearce
 	 *
 	 */
-	public class Exception extends RuntimeException {
+	public static class Exception extends RuntimeException {
+		/**
+		 * The file entry to which this error applies
+		 */
+		private Syntactic.Heap source;
+		/**
+		 * The SyntacticElement to which this error refers.
+		 */
+		private Syntactic.Item element;
+
+		/**
+		 * Identify a syntax error at a particular point in a file.
+		 *
+		 * @param msg
+		 *            Message detailing the problem.
+		 * @param entry
+		 *            The path entry for the compilation unit this error refers to
+		 * @param element
+		 *            The syntactic element to this error refers
+		 */
+		public Exception(String msg, Syntactic.Heap entry, Syntactic.Item element) {
+			super(msg);
+			this.source = entry;
+			this.element = element;
+		}
+
+		public Exception(String msg, Syntactic.Heap entry, Syntactic.Item element, Throwable ex) {
+			super(msg,ex);
+			this.source = entry;
+			this.element = element;
+		}
+
+		public Syntactic.Item getElement() {
+			return element;
+		}
+
+		public Syntactic.Heap getEntry() {
+			return source;
+		}
+
 		public void outputSourceError(PrintStream out, boolean brief) {
 			throw new IllegalArgumentException();
 		}
@@ -42,7 +81,7 @@ public class Syntactic {
 	 * @author David J. Pearce
 	 *
 	 */
-	public static interface Heap extends Content {
+	public static interface Heap {
 
 		/**
 		 * Get the number of items in the heap.
@@ -58,7 +97,7 @@ public class Syntactic {
 		 *
 		 * @return
 		 */
-		public SyntacticItem getRootItem();
+		public Item getRootItem();
 
 		/**
 		 * Set the "root" of this syntactic heap. That is a distinguished item which is
@@ -67,7 +106,7 @@ public class Syntactic {
 		 *
 		 * @param item
 		 */
-		public void setRootItem(SyntacticItem item);
+		public void setRootItem(Item item);
 
 		/**
 		 * Return the ith syntactic item in this heap. This may return null if the
@@ -76,7 +115,7 @@ public class Syntactic {
 		 * @param index
 		 * @return
 		 */
-		public SyntacticItem getSyntacticItem(int ith);
+		public Item getSyntacticItem(int ith);
 
 		/**
 		 * Determine the index of a given syntactic item in this heap.
@@ -84,7 +123,7 @@ public class Syntactic {
 		 * @param item
 		 * @return
 		 */
-		public int getIndexOf(SyntacticItem item);
+		public int getIndexOf(Item item);
 
 		/**
 		 * <p>
@@ -103,7 +142,7 @@ public class Syntactic {
 		 * @param item
 		 * @return
 		 */
-		public <T extends SyntacticItem> T allocate(T item);
+		public <T extends Item> T allocate(T item);
 
 		/**
 		 * Get first parent of a syntactic item matching the given kind. If no item
@@ -113,7 +152,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> T getParent(SyntacticItem child, Class<T> kind);
+		public <T extends Item> T getParent(Item child, Class<T> kind);
 
 		/**
 		 * Get all parents of a syntactic item matching the given kind.
@@ -122,7 +161,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> List<T> getParents(SyntacticItem child, Class<T> kind);
+		public <T extends Item> List<T> getParents(Item child, Class<T> kind);
 
 		/**
 		 * Get first ancestor of a syntactic item matching the given kind. If no
@@ -132,7 +171,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> T getAncestor(SyntacticItem child, Class<T> kind);
+		public <T extends Item> T getAncestor(Item child, Class<T> kind);
 
 
 		/**
@@ -151,7 +190,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> List<T> findAll(Class<T> kind);
+		public <T extends Item> List<T> findAll(Class<T> kind);
 
 
 		/**
@@ -163,83 +202,45 @@ public class Syntactic {
 		 * @param from
 		 * @param to
 		 */
-		public <T extends SyntacticItem> void replace(T from, T to);
+		public <T extends Item> void replace(T from, T to);
 
 		/**
 		 * Trigger garbage collection for this heap. This may result in the indices of
 		 * all items being changed and, hence, is a relatively destructive operation.
 		 */
 		public boolean gc();
-
-		/**
-		 * Abstracts the mechanism for allocating items into this heap.
-		 *
-		 * @author David J. Pearce
-		 *
-		 */
-		public interface Allocator<H extends Heap> {
-
-			/**
-			 * <p>
-			 * Allocate a given syntactic item into a heap. The item must not already be
-			 * allocated to another heap. This will recursively allocate children not
-			 * already allocated to this heap. Observe that the item returned is the actual
-			 * object allocated into this heap. One should not assume that the item given is
-			 * that which is actually allocated.
-			 * </p>
-			 * <p>
-			 * This method will not permit mixed allocation items. That is, when it
-			 * encounters an item already allocated to another heap it will simple throw an
-			 * exception.
-			 * </p>
-			 *
-			 * @param item
-			 * @return
-			 */
-			public SyntacticItem allocate(SyntacticItem item);
-		}
-
-		/**
-		 * Abstracts the mechanism for decoding a given heap whilst preserving
-		 * versioning information.
-		 *
-		 * @author David J. Pearce
-		 *
-		 */
-		public interface Schema {
-			/**
-			 * Get the minor version of this schema.
-			 *
-			 * @return
-			 */
-			public int getMinorVersion();
-
-			/**
-			 * Get the major version of this schema.
-			 *
-			 * @return
-			 */
-			public int getMajorVersion();
-
-			/**
-			 * Get the schema from which this schema extends (if any).
-			 *
-			 * @return
-			 */
-			public Schema getParent();
-
-			/**
-			 * Get the schema for a given item based on its opcode. This schema is use to
-			 * decode the instruction.
-			 *
-			 * @param opcode
-			 * @return
-			 */
-			public SyntacticItem.Descriptor getDescriptor(int opcode);
-		}
 	}
 
-	public static interface SyntacticItem extends Comparable<SyntacticItem> {
+
+	/**
+	 * Abstracts the mechanism for allocating items into this heap.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	public interface Allocator<H extends Heap> {
+
+		/**
+		 * <p>
+		 * Allocate a given syntactic item into a heap. The item must not already be
+		 * allocated to another heap. This will recursively allocate children not
+		 * already allocated to this heap. Observe that the item returned is the actual
+		 * object allocated into this heap. One should not assume that the item given is
+		 * that which is actually allocated.
+		 * </p>
+		 * <p>
+		 * This method will not permit mixed allocation items. That is, when it
+		 * encounters an item already allocated to another heap it will simple throw an
+		 * exception.
+		 * </p>
+		 *
+		 * @param item
+		 * @return
+		 */
+		public Item allocate(Item item);
+	}
+
+	public static interface Item extends Comparable<Item> {
 
 		/**
 		 * Get the enclosing compilation unit in which this syntactic item is
@@ -289,14 +290,14 @@ public class Syntactic {
 		 * @param i
 		 * @return
 		 */
-		public SyntacticItem get(int i);
+		public Item get(int i);
 
 		/**
 		 * Return the top-level children in this bytecode.
 		 *
 		 * @return
 		 */
-		public SyntacticItem[] getAll();
+		public Item[] getAll();
 
 		/**
 		 * Mutate the ith child of this item
@@ -304,7 +305,7 @@ public class Syntactic {
 		 * @param ith
 		 * @param child
 		 */
-		public void setOperand(int ith, SyntacticItem child);
+		public void setOperand(int ith, Item child);
 
 		/**
 		 * Get the index of this item in the parent's items table.
@@ -327,7 +328,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> T getParent(Class<T> kind);
+		public <T extends Item> T getParent(Class<T> kind);
 
 		/**
 		 * Get all syntactic items of a given kind which refer to this item.
@@ -335,7 +336,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> List<T> getParents(Class<T> kind);
+		public <T extends Item> List<T> getParents(Class<T> kind);
 
 		/**
 		 * Get the first syntactic item of a given kind which refers directly or
@@ -344,7 +345,7 @@ public class Syntactic {
 		 * @param kind
 		 * @return
 		 */
-		public <T extends SyntacticItem> T getAncestor(Class<T> kind);
+		public <T extends Item> T getAncestor(Class<T> kind);
 
 		/**
 		 * Create a new copy of the given syntactic item with the given operands.
@@ -354,7 +355,7 @@ public class Syntactic {
 		 * @param operands
 		 * @return
 		 */
-		public SyntacticItem clone(SyntacticItem[] operands);
+		public Item clone(Item[] operands);
 
 		// ============================================================
 		// Schema
@@ -398,13 +399,52 @@ public class Syntactic {
 				return mnemonic;
 			}
 
-			public abstract SyntacticItem construct(int opcode, SyntacticItem[] operands, byte[] data);
+			public abstract Item construct(int opcode, Item[] operands, byte[] data);
 
 			@Override
 			public String toString() {
 				return "<" + operands + " operands, " + data + ">";
 			}
 		}
+	}
+
+	/**
+	 * Abstracts the mechanism for decoding a given heap whilst preserving
+	 * versioning information.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	public interface Schema {
+		/**
+		 * Get the minor version of this schema.
+		 *
+		 * @return
+		 */
+		public int getMinorVersion();
+
+		/**
+		 * Get the major version of this schema.
+		 *
+		 * @return
+		 */
+		public int getMajorVersion();
+
+		/**
+		 * Get the schema from which this schema extends (if any).
+		 *
+		 * @return
+		 */
+		public Schema getParent();
+
+		/**
+		 * Get the schema for a given item based on its opcode. This schema is use to
+		 * decode the instruction.
+		 *
+		 * @param opcode
+		 * @return
+		 */
+		public Item.Descriptor getDescriptor(int opcode);
 	}
 
 	/**
@@ -416,7 +456,7 @@ public class Syntactic {
 	 * @author David J. Pearce
 	 *
 	 */
-	public static interface Marker {
+	public static interface Marker extends Item {
 		/**
 		 * Get the message associated with this marker.
 		 *
@@ -429,7 +469,7 @@ public class Syntactic {
 		 *
 		 * @return
 		 */
-		public SyntacticItem getTarget();
+		public Item getTarget();
 
 		/**
 		 * Get concrete path of enclosing source file.
@@ -459,6 +499,6 @@ public class Syntactic {
 	 * @param <T>
 	 */
 	public interface AttributeMap<T> {
-		public T get(SyntacticItem item);
+		public T get(Item item);
 	}
 }

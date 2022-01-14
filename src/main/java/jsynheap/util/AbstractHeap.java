@@ -22,32 +22,32 @@ import java.util.List;
 import java.util.Map;
 
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
+import jsynheap.lang.Syntactic.Item;
 
-public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
+public abstract class AbstractHeap implements Syntactic.Heap {
 	/**
 	 * The list of syntactic items contained in this heap.
 	 */
-	protected final ArrayList<SyntacticItem> syntacticItems = new ArrayList<>();
+	protected final ArrayList<Item> syntacticItems = new ArrayList<>();
 
 	/**
 	 * The root item for this heap.
 	 */
 	protected int root;
 
-	public AbstractSyntacticHeap() {
+	public AbstractHeap() {
 
 	}
 
-	public AbstractSyntacticHeap(Syntactic.Heap heap) {
+	public AbstractHeap(Syntactic.Heap heap) {
 		// Copy over the root
 		this.root = heap.getRootItem().getIndex();
 		// Now, clone items from heap in here
 		Allocator allocator = new Allocator(this);
 		//
 		for (int i = 0; i != heap.size(); ++i) {
-			SyntacticItem oitem = heap.getSyntacticItem(i);
-			SyntacticItem item = clone(oitem, allocator.map);
+			Item oitem = heap.getSyntacticItem(i);
+			Item item = clone(oitem, allocator.map);
 			allocator.allocate(item);
 		}
 	}
@@ -58,22 +58,22 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	}
 
 	@Override
-	public SyntacticItem getRootItem() {
+	public Item getRootItem() {
 		return getSyntacticItem(root);
 	}
 
 	@Override
-	public void setRootItem(SyntacticItem item) {
+	public void setRootItem(Item item) {
 		this.root = allocate(item).getIndex();
 	}
 
 	@Override
-	public SyntacticItem getSyntacticItem(int index) {
+	public Item getSyntacticItem(int index) {
 		return syntacticItems.get(index);
 	}
 
 	@Override
-	public int getIndexOf(SyntacticItem item) {
+	public int getIndexOf(Item item) {
 		for (int i = 0; i != syntacticItems.size(); ++i) {
 			if (syntacticItems.get(i) == item) {
 				return i;
@@ -82,10 +82,10 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 		throw new IllegalArgumentException("invalid syntactic item");
 	}
 
-	public <T extends SyntacticItem> List<T> getSyntacticItems(Class<T> kind) {
+	public <T extends Item> List<T> getSyntacticItems(Class<T> kind) {
 		ArrayList<T> matches = new ArrayList<>();
 		for (int i = 0; i != syntacticItems.size(); ++i) {
-			SyntacticItem item = syntacticItems.get(i);
+			Item item = syntacticItems.get(i);
 			if (kind.isInstance(item)) {
 				matches.add((T) item);
 			}
@@ -102,10 +102,10 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 * @return
 	 */
 	@Override
-	public <T extends SyntacticItem> T getParent(SyntacticItem child, Class<T> kind) {
+	public <T extends Item> T getParent(Item child, Class<T> kind) {
 		// FIXME: this could be optimised a *lot*
 		for (int i = 0; i != syntacticItems.size(); ++i) {
-			SyntacticItem parent = syntacticItems.get(i);
+			Item parent = syntacticItems.get(i);
 			if(kind.isInstance(parent)) {
 				for(int j=0;j!=parent.size();++j) {
 					if(parent.get(j) == child) {
@@ -119,10 +119,10 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	}
 
 	@Override
-	public <T extends SyntacticItem> List<T> getParents(SyntacticItem child, Class<T> kind) {
+	public <T extends Item> List<T> getParents(Item child, Class<T> kind) {
 		List<T> parents = new ArrayList<>();
 		for (int i = 0; i != syntacticItems.size(); ++i) {
-			SyntacticItem parent = syntacticItems.get(i);
+			Item parent = syntacticItems.get(i);
 			if(kind.isInstance(parent)) {
 				for(int j=0;j!=parent.size();++j) {
 					if(parent.get(j) == child) {
@@ -144,13 +144,13 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 * @return
 	 */
 	@Override
-	public <T extends SyntacticItem> T getAncestor(SyntacticItem child, Class<T> kind) {
+	public <T extends Item> T getAncestor(Item child, Class<T> kind) {
 		// FIXME: this could be optimised a *lot*
 		if (kind.isInstance(child)) {
 			return (T) child;
 		} else {
 			for (int i = 0; i != syntacticItems.size(); ++i) {
-				SyntacticItem parent = syntacticItems.get(i);
+				Item parent = syntacticItems.get(i);
 				for (int j = 0; j != parent.size(); ++j) {
 					// Don't follow cross-references
 					if (parent.get(j) == child && !(parent instanceof AbstractCompilationUnit.Ref)) {
@@ -170,19 +170,19 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	}
 
 	@Override
-	public <T extends SyntacticItem> List<T> findAll(Class<T> kind) {
+	public <T extends Item> List<T> findAll(Class<T> kind) {
 		ArrayList<T> matches = new ArrayList<>();
 		findAll(getRootItem(), kind, matches, new BitSet());
 		return matches;
 	}
 
 	@Override
-	public <T extends SyntacticItem> void replace(T from, T to) {
+	public <T extends Item> void replace(T from, T to) {
 		replaceAll(getRootItem(), from, to, new BitSet());
 	}
 
 	@Override
-	public <T extends SyntacticItem> T allocate(T item) {
+	public <T extends Item> T allocate(T item) {
 		return (T) new Allocator(this).allocate(item);
 	}
 
@@ -199,7 +199,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 		int count = 0;
 		for(int i=0;i!=syntacticItems.size();++i) {
 			if(reachable.get(i)) {
-				SyntacticItem item = syntacticItems.get(i);
+				Item item = syntacticItems.get(i);
 				// Reset the index of this item
 				item.allocate(this, count);
 				// Move the item down
@@ -217,7 +217,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	public void print(PrintWriter out) {
 		String lenStr = Integer.toString(syntacticItems.size());
 		for (int i = 0; i != syntacticItems.size(); ++i) {
-			SyntacticItem item = syntacticItems.get(i);
+			Item item = syntacticItems.get(i);
 			out.print("// ");
 			// Right align the string to ensure that all bytecodes are
 			// displayed on the same column. This just helps reading them.
@@ -247,7 +247,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 *
 	 * @return
 	 */
-	public static <T extends SyntacticItem> T clone(T item) {
+	public static <T extends Item> T clone(T item) {
 		return clone(item, new IdentityHashMap<>());
 	}
 
@@ -255,7 +255,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	// HELPERS
 	// ========================================================================
 
-	private static <T extends SyntacticItem> void findAll(SyntacticItem item, Class<T> kind, ArrayList<T> matches,
+	private static <T extends Item> void findAll(Item item, Class<T> kind, ArrayList<T> matches,
 			BitSet visited) {
 		int index = item.getIndex();
 		// Check whether already visited this item
@@ -273,14 +273,14 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 		}
 	}
 
-	private static <T extends SyntacticItem> void replaceAll(SyntacticItem item, T from, T to, BitSet visited) {
+	private static <T extends Item> void replaceAll(Item item, T from, T to, BitSet visited) {
 		int index = item.getIndex();
 		// Check whether already visited this item
 		if (item != from && !visited.get(index)) {
 			// Record that have now visited
 			visited.set(index);
 			// Attempt the replacement
-			SyntacticItem[] children = item.getAll();
+			Item[] children = item.getAll();
 			if(children != null) {
 				for (int i = 0; i != children.length; ++i) {
 					// Apply the replacement.
@@ -304,7 +304,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 * @param visited
 	 * @return
 	 */
-	public static BitSet findReachable(SyntacticItem item, BitSet visited) {
+	public static BitSet findReachable(Item item, BitSet visited) {
 		int index = item.getIndex();
 		// Check whether already visited this item
 		if (!visited.get(index)) {
@@ -332,13 +332,13 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 *            structure in the resulting cloned item.
 	 * @return
 	 */
-	private static <T extends SyntacticItem> T clone(T item, Map<SyntacticItem, SyntacticItem> mapping) {
-		SyntacticItem clonedItem = mapping.get(item);
+	private static <T extends Item> T clone(T item, Map<Item, Item> mapping) {
+		Item clonedItem = mapping.get(item);
 		if (clonedItem == null) {
 			// Item not previously cloned. Therefore, first create new item
-			SyntacticItem[] operands = new SyntacticItem[item.size()];
+			Item[] operands = new Item[item.size()];
 			for (int i = 0; i != operands.length; ++i) {
-				SyntacticItem operand = item.get(i);
+				Item operand = item.get(i);
 				if (operand != null) {
 					operands[i] = clone(operand, mapping);
 				}
@@ -350,17 +350,17 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 		return (T) clonedItem;
 	}
 
-	public static <T extends SyntacticItem> T cloneOnly(T item, Map<SyntacticItem, SyntacticItem> mapping, Class<?> clazz) {
-		SyntacticItem clonedItem = mapping.get(item);
+	public static <T extends Item> T cloneOnly(T item, Map<Item, Item> mapping, Class<?> clazz) {
+		Item clonedItem = mapping.get(item);
 		if (clonedItem == null) {
 			// Item not previously cloned. Therefore, first create new item
-			SyntacticItem[] operands = item.getAll();
-			SyntacticItem[] nOperands = operands;
+			Item[] operands = item.getAll();
+			Item[] nOperands = operands;
 			if (operands != null) {
 				for (int i = 0; i != operands.length; ++i) {
-					SyntacticItem operand = operands[i];
+					Item operand = operands[i];
 					if (operand != null) {
-						SyntacticItem nOperand = cloneOnly(operand, mapping,clazz);
+						Item nOperand = cloneOnly(operand, mapping,clazz);
 						if(nOperand != operand && operands == nOperands) {
 							nOperands = Arrays.copyOf(operands, operands.length);
 						}
@@ -408,8 +408,8 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 *            The syntactic item that will replace all occurrences of from
 	 * @return
 	 */
-	public static SyntacticItem substitute(SyntacticItem item, SyntacticItem from, SyntacticItem to) {
-		SyntacticItem nItem = substitute(item, from, to, new IdentityHashMap<>());
+	public static Item substitute(Item item, Item from, Item to) {
+		Item nItem = substitute(item, from, to, new IdentityHashMap<>());
 		if(nItem != item) {
 			item.getHeap().allocate(nItem);
 		}
@@ -424,9 +424,9 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 	 *            syntactic items. This is necessary to preserve the aliasing
 	 *            structure in the resulting cloned item.
 	 */
-	private static SyntacticItem substitute(SyntacticItem item, SyntacticItem from, SyntacticItem to,
-			Map<SyntacticItem, SyntacticItem> mapping) {
-		SyntacticItem sItem = mapping.get(item);
+	private static Item substitute(Item item, Item from, Item to,
+			Map<Item, Item> mapping) {
+		Item sItem = mapping.get(item);
 		if (sItem != null) {
 			// We've previously substituted this item already to produce a
 			// potentially updated item. Therefore, simply return that item to
@@ -438,25 +438,25 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 			// to which it is being replaced.
 			return to;
 		} else {
-			SyntacticItem nItem = item;
+			Item nItem = item;
 			// We need to recursively descend into children of this item looking
 			// for the item to replace. The challenge here is that we need to
 			// ensure the original item is preserved as is if there is no
 			// change.
-			SyntacticItem[] children = item.getAll();
+			Item[] children = item.getAll();
 			// Initially, this will alias children. In the event of a child
 			// which is actually updated, then this will refer to a new array.
 			// That will be the signal that we need to create a new item to
 			// return.
-			SyntacticItem[] nChildren = children;
+			Item[] nChildren = children;
 			if (children != null) {
 				for (int i = 0; i != children.length; ++i) {
-					SyntacticItem child = children[i];
+					Item child = children[i];
 					// Check for null, since we don't want to try and substitute
 					// into null.
 					if (child != null) {
 						// Perform the substitution in the given child
-						SyntacticItem nChild = substitute(child, from, to, mapping);
+						Item nChild = substitute(child, from, to, mapping);
 						// Check whether anything was actually changed by the
 						// substitution.
 						if (nChild != child && children == nChildren) {
@@ -482,19 +482,19 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 		}
 	}
 
-	public static class Allocator implements Syntactic.Heap.Allocator<AbstractSyntacticHeap> {
-		protected final AbstractSyntacticHeap heap;
-		protected final Map<SyntacticItem, SyntacticItem> map;
+	public static class Allocator implements Syntactic.Allocator<AbstractHeap> {
+		protected final AbstractHeap heap;
+		protected final Map<Item, Item> map;
 
-		public Allocator(AbstractSyntacticHeap heap) {
+		public Allocator(AbstractHeap heap) {
 			this.heap = heap;
 			this.map = new IdentityHashMap<>();
 		}
 
 		@Override
-		public SyntacticItem allocate(SyntacticItem item) {
+		public Item allocate(Item item) {
 			Syntactic.Heap parent = item.getHeap();
-			SyntacticItem allocated = map.get(item);
+			Item allocated = map.get(item);
 			if (allocated != null) {
 				return allocated;
 			} else if (parent == heap) {
@@ -504,7 +504,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 				// Determine index for allocation
 				int index = heap.size();
 				// Clone item prior to allocation
-				SyntacticItem nItem = item.clone(new SyntacticItem[item.size()]);
+				Item nItem = item.clone(new Item[item.size()]);
 				// Allocate item
 				heap.syntacticItems.add(nItem);
 				// ... and allocate item itself
@@ -513,7 +513,7 @@ public abstract class AbstractSyntacticHeap implements Syntactic.Heap {
 				// Item not allocated to this heap. Therefore, recursively allocate
 				// all children.
 				for (int i = 0; i != nItem.size(); ++i) {
-					SyntacticItem child = item.get(i);
+					Item child = item.get(i);
 					if (child != null) {
 						child = allocate(child);
 					}

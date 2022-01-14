@@ -16,9 +16,9 @@ package jsynheap.io;
 import java.io.PrintWriter;
 
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
+import jsynheap.lang.Syntactic.Item;
 
-public class SyntacticHeapPrinter {
+public class HeapPrinter {
 	private final PrintWriter out;
 
 	/**
@@ -26,7 +26,7 @@ public class SyntacticHeapPrinter {
 	 */
 	private final boolean showGarbage;
 
-	public SyntacticHeapPrinter(PrintWriter out, boolean showGarbage) {
+	public HeapPrinter(PrintWriter out, boolean showGarbage) {
 		this.out = out;
 		this.showGarbage = showGarbage;
 	}
@@ -37,7 +37,7 @@ public class SyntacticHeapPrinter {
 		//
 		out.println("root=" + heap.getRootItem().getIndex());
 		for(int i=0;i!=heap.size();++i) {
-			SyntacticItem item = heap.getSyntacticItem(i);
+			Item item = heap.getSyntacticItem(i);
 			if(reachable[i] || showGarbage) {
 				out.print("#" + i);
 				out.print(" ");
@@ -74,7 +74,7 @@ public class SyntacticHeapPrinter {
 	private void search(int index, Syntactic.Heap heap, boolean[] visited) {
 		visited[index] = true;
 		//
-		SyntacticItem item = heap.getSyntacticItem(index);
+		Item item = heap.getSyntacticItem(index);
 		for (int j = 0; j != item.size(); ++j) {
 			int jth = item.get(j).getIndex();
 			if(!visited[jth]) {

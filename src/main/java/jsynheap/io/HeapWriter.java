@@ -24,7 +24,7 @@ import java.util.Map;
 
 import jbuildgraph.util.Pair;
 import jsynheap.lang.Syntactic;
-import jsynheap.lang.Syntactic.SyntacticItem;
+import jsynheap.lang.Syntactic.Item;
 
 
 /**
@@ -37,11 +37,11 @@ import jsynheap.lang.Syntactic.SyntacticItem;
  * @author David J. Pearce
  *
  */
-public abstract class SyntacticHeapWriter {
+public abstract class HeapWriter {
 	protected final BinaryOutputStream out;
-	protected final Syntactic.Heap.Schema schema;
+	protected final Syntactic.Schema schema;
 
-	public SyntacticHeapWriter(OutputStream output, Syntactic.Heap.Schema schema) {
+	public HeapWriter(OutputStream output, Syntactic.Schema schema) {
 		this.out = new BinaryOutputStream(output);
 		this.schema = schema;
 	}
@@ -67,7 +67,7 @@ public abstract class SyntacticHeapWriter {
 
 	public abstract void writeHeader() throws IOException;
 
-	public void writeSyntacticItem(SyntacticItem item) throws IOException {
+	public void writeSyntacticItem(Item item) throws IOException {
 		int d = out.length();
 		// Write opcode
 		out.write_u8(item.getOpcode());
@@ -82,9 +82,9 @@ public abstract class SyntacticHeapWriter {
 		out.pad_u8();
 	}
 
-	private void writeOperands(SyntacticItem item) throws IOException {
+	private void writeOperands(Item item) throws IOException {
 		// Determine operand layout
-		SyntacticItem.Operands layout = schema.getDescriptor(item.getOpcode()).getOperandLayout();
+		Item.Operands layout = schema.getDescriptor(item.getOpcode()).getOperandLayout();
 		// Write operands according to layout
 		switch(layout) {
 		case MANY:
@@ -99,14 +99,14 @@ public abstract class SyntacticHeapWriter {
 		}
 		//
 		for (int i = 0; i != item.size(); ++i) {
-			SyntacticItem operand = item.get(i);
+			Item operand = item.get(i);
 			out.write_uv(operand.getIndex());
 		}
 	}
 
-	public void writeData(SyntacticItem item) throws IOException {
+	public void writeData(Item item) throws IOException {
 		// Determine data layout
-		SyntacticItem.Data layout = schema.getDescriptor(item.getOpcode()).getDataLayout();
+		Item.Data layout = schema.getDescriptor(item.getOpcode()).getDataLayout();
 		byte[] bytes = item.getData();
 		// Write data according to layout
 		switch (layout) {
@@ -164,7 +164,7 @@ public abstract class SyntacticHeapWriter {
 		metrics.put(opcode, old.record(size));
 	}
 
-	public static void printMetrics(Syntactic.Heap.Schema schema) {
+	public static void printMetrics(Syntactic.Schema schema) {
 		List<Pair<Integer,Metric>> items = new ArrayList();
 		for(int i=0;i!=255;++i) {
 			Metric c = metrics.get(i);
